@@ -2,7 +2,7 @@ import datetime
 
 
 class Chat(object):
-    """An object to encapsulate the entire Facebook Message history.
+    """An object to encapsulate the entire iOS Message history.
 
         - Contains a list of Thread objects, which can be accessed using item
           accessing Chat["Thread Name"] style.
@@ -112,7 +112,7 @@ class Chat(object):
 
 
 class Thread(object):
-    """An object to encapsulate a Facebook Message thread.
+    """An object to encapsulate a iOS Message thread.
 
         - Contains a list of participants, a string form of the list and a list
           of messages in the thread as Message objects.
@@ -125,13 +125,7 @@ class Thread(object):
         self.messages = sorted(messages)
 
     def __getitem__(self, key):
-        """Allow accessing Message objects in the messages list using Thread[n].
-
-           Beware out by one errors! The message numbers start counting at 1,
-           but the list they are stored in is indexed from 0.
-            - This behaviour could be corrected by either subtracting one from
-              the key (which causes issues when slicing), or by counting messages
-              from 0."""
+        """Allow accessing Message objects in the messages list using Thread[n]."""
         return self.messages[key]
 
     def __repr__(self):
@@ -155,22 +149,11 @@ class Thread(object):
             return datetime.datetime(*date)  # Expand the tuple and allow datetime to process it
 
     def _add_messages(self, new_messages):
-        """Allos adding messages to an already created Thread object.
+        """Allow adding messages to an already created Thread object.
 
            This function is useful for merging duplicate threads together."""
         self.messages.extend(new_messages)
         self.messages = sorted(self.messages)
-
-    def _renumber_messages(self):
-        """Renumber all messages in the 'messages' list.
-
-           Message objects are are sorted after being added; but if messages are
-           added using _add_messages() then the numbering may be incorrect. This
-           function fixes that."""
-        i = 1
-        for message in self.messages:
-            message._num = i
-            i += 1
 
     def by(self, name):
         """Return a date ordered list of all messages sent by 'name'.
@@ -215,14 +198,14 @@ class Thread(object):
 
 
 class Message(object):
-    """An object to encapsulate a Facebook Message.
+    """An object to encapsulate a iOS Message.
 
         - Contains a string of the author's name, the timestamp, number in the thread
           and the body of the message.
-        - When initialising, thread_name' should be the containing Thread.people_str,
+        - When initialising, thread_name' should be the containing Thread.people,
           'author' should be string containing the message sender's name, 'date_time'
           should be a datetime.datetime object, 'text' should be the content of
-          the message and 'num' should be the number of the message in the thread."""
+          the message and 'num' should be the unique text number."""
 
     def __init__(self, thread, author, date_time, text, num):
         self.thread_name = thread
@@ -248,11 +231,7 @@ class Message(object):
            in which case message number is used to resolve conflicts. This number
            ordering holds fine for messages in single threads, but offers no real
            objective order outside a thread."""
-        if self.date_time == message.date_time:
-            if abs(self._num - message._num) > 9000:    # If dates equal, but numbers miles apart
-                return False  # MUST be where two 10000 groups join: larger number actually smaller here!
-            else:
-                return self._num < message._num
+        # return self._num < message._num  # Number is unique, but can lie about order.
         return self.sent_before(message.date_time)
 
     def __gt__(self, message):
@@ -262,18 +241,12 @@ class Message(object):
            in which case message number is used to resolve conflicts. This number
            ordering holds fine for messages in single threads, but offers no real
            objective order outside a thread."""
-        if self.date_time == message.date_time:
-            if abs(self._num - message._num) > 9000:    # If dates equal, but numbers miles apart
-                return True  # MUST be where two 10000 groups join: smaller number actually larger here!
-            else:
-                return self._num > message._num
+        # return self._num > message._num  # Number is unique, but can lie about order.
         return self.sent_after(message.date_time)
 
     def __eq__(self, message):
-        """Messages are equal if their number, date, author and text are the same."""
-        equal = (self._num == message._num) and (self.author == message.author)
-        equal = equal and (self.date_time == message.date_time) and (self.text == message.text)
-        return equal
+        """Messages are equal if their numbers are the same."""
+        return self._num == message._num
 
     def _date_parse(self, date):
         """Allow dates to be entered as integer tuples (YYYY, MM, DD[, HH, MM]).

@@ -95,18 +95,29 @@ with sql.connect('sms.db') as sms_db:
     _thread_list = []
     _previous_thread_name = None    
     #
+    _thread_names = set()
+    #
     for m in messages_data:
         message_num = _parse_message_num(m[0])
         thread_name = _parse_message_handle(m[1])
         message_author = _parse_message_author(thread_name, m[2])
         message_date = _parse_message_date(m[3])
         message_body = _parse_message_body(m[4])
-        #
-        if thread_name == _previous_thread_name:
+        # If message continuation of thread, add to list (or if first message and None):
+        if ((thread_name == _previous_thread_name) or (_previous_thread_name is None)):          
             _thread_list.append(ios_chat.Message(thread_name, message_author, message_date, message_body, message_num))
-        else:
-            _chat_list.append(ios_chat.Thread(_previous_thread_name, _thread_list))
+        else:  # If first message of new thread:
+            if _previous_thread_name not in _thread_names:  # And old one not duplicate thread:
+                _thread_names.add(_previous_thread_name)
+                _chat_list.append(ios_chat.Thread(_previous_thread_name, _thread_list))
+            else:  # But if old one is a duplicate thread:
+                for thread in _chat_list:
+                    if thread.people == _previous_thread_name:
+                        thread._add_messages(_thread_list)
+                        break
+            # Then start new list with current message:
             _thread_list = [ios_chat.Message(thread_name, message_author, message_date, message_body, message_num)]
+        # Before finishing loop, update previous name:
         _previous_thread_name = thread_name
     #
     _chat_list.append(ios_chat.Thread(thread_name, _thread_list))
