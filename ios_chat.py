@@ -31,7 +31,7 @@ class Chat(object):
 
     def __repr__(self):
         """Set Python's representation of the Chat object."""
-        return "<{}'s CHAT LOG: TOTAL_THREADS={} TOTAL_MESSAGES={}>".format(self._myname, len(self.threads), self._total_messages)
+        return "<{}'s SMS LOG: TOTAL_THREADS={} TOTAL_MESSAGES={}>".format(self._myname, len(self.threads), self._total_messages)
 
     def __len__(self):
         """Return the total number of threads.
@@ -42,12 +42,12 @@ class Chat(object):
         return len(self.threads)
 
     def _date_parse(self, date):
-        """Allow dates to be entered as integer tuples (YYYY, MM, DD[, HH, MM]).
+        """Allow dates to be entered as integer tuples (YYYY, MM, DD[, HH, MM, SS]).
 
            Removes the need to supply datetime objects, but still allows dates
            to be entered as datetime.datetime objects. The Year, Month and
-           Day are compulsory, the Hours and Minutes optional. May cause exceptions
-           if poorly formatted tuples are used."""
+           Day are compulsory, the Hours, Minutes and Seconds optional. May cause
+           exceptions if poorly formatted tuples are used."""
         if type(date) is datetime.datetime:
             return date
         else:
@@ -79,7 +79,7 @@ class Chat(object):
         """Return a date ordered list of all messages sent before specified date.
 
            The function returns a list of Message objects. The 'date' can be a
-           datetime.datetime object, or a three or five tuple (YYYY, MM, DD[, HH, MM])."""
+           datetime.datetime object, or a three to six tuple (YYYY, MM, DD[, HH, MM. SS])."""
         date = self._date_parse(date)
         return sorted([message for thread in self.threads for message in thread.sent_before(date)])
 
@@ -87,7 +87,7 @@ class Chat(object):
         """Return a date ordered list of all messages sent after specified date.
 
            The list returned is a list of Message objects. The 'date' can be a
-           datetime.datetime object, or a three or five tuple (YYYY, MM, DD[, HH, MM])."""
+           datetime.datetime object, or a three to six tuple (YYYY, MM, DD[, HH, MM, SS])."""
         date = self._date_parse(date)
         return sorted([message for thread in self.threads for message in thread.sent_after(date)])
 
@@ -95,8 +95,8 @@ class Chat(object):
         """Return a date ordered list of all messages sent between specified dates.
 
            The list returned is a list of Message objects. The 'start' and 'end'
-           can be datetime.datetime objects, or a three or five tuple
-           (YYYY, MM, DD[, HH, MM])."""
+           can be datetime.datetime objects, or a three to six tuple
+           (YYYY, MM, DD[, HH, MM, SS])."""
         start = self._date_parse(start)
         end = self._date_parse(end)
         return sorted([message for thread in self.threads for message in thread.sent_between(start, end)])
@@ -137,12 +137,12 @@ class Thread(object):
         return len(self.messages)
 
     def _date_parse(self, date):
-        """Allow dates to be entered as integer tuples (YYYY, MM, DD[, HH, MM]).
+        """Allow dates to be entered as integer tuples (YYYY, MM, DD[, HH, MM, SS]).
 
            Removes the need to supply datetime objects, but still allows dates
            to be entered as datetime.datetime objects. The Year, Month and
-           Day are compulsory, the Hours and Minutes optional. May cause exceptions
-           if poorly formatted tuples are used."""
+           Day are compulsory, the Hours, Minutes and Seconds optional. May cause
+           exceptions if poorly formatted tuples are used."""
         if type(date) is datetime.datetime:
             return date
         else:
@@ -165,7 +165,7 @@ class Thread(object):
         """Return a date ordered list of all messages sent before specified date.
 
            The function returns a list of Message objects. The 'date' can be a
-           datetime.datetime object, or a three or five tuple (YYYY, MM, DD[, HH, MM])."""
+           datetime.datetime object, or a three to six tuple (YYYY, MM, DD[, HH, MM, SS])."""
         date = self._date_parse(date)
         return [message for message in self.messages if message.sent_before(date)]
 
@@ -173,7 +173,7 @@ class Thread(object):
         """Return a date ordered list of all messages sent after specified date.
 
            The list returned is a list of Message objects. The 'date' can be a
-           datetime.datetime object, or a three or five tuple (YYYY, MM, DD[, HH, MM])."""
+           datetime.datetime object, or a three to six tuple (YYYY, MM, DD[, HH, MM, SS])."""
         date = self._date_parse(date)
         return [message for message in self.messages if message.sent_after(date)]
 
@@ -181,8 +181,8 @@ class Thread(object):
         """Return a date ordered list of all messages sent between specified dates.
 
            The list returned is a list of Message objects. The 'start' and 'end'
-           can be datetime.datetime objects, or a three or five tuple
-           (YYYY, MM, DD[, HH, MM])."""
+           can be datetime.datetime objects, or a three to six tuple
+           (YYYY, MM, DD[, HH, MM, SS])."""
         start = self._date_parse(start)
         end = self._date_parse(end)
         return [message for message in self.messages if message.sent_between(start, end)]
@@ -200,7 +200,7 @@ class Thread(object):
 class Message(object):
     """An object to encapsulate a iOS Message.
 
-        - Contains a string of the author's name, the timestamp, number in the thread
+        - Contains a string of the author's name, the timestamp, text message number
           and the body of the message.
         - When initialising, thread_name' should be the containing Thread.people,
           'author' should be string containing the message sender's name, 'date_time'
@@ -216,7 +216,7 @@ class Message(object):
 
     def __repr__(self):
         """Set Python's representation of the Message object."""
-        return '<MESSAGE: THREAD={} NUMBER={} TIMESTAMP={} AUTHOR={} MESSAGE="{}">'.\
+        return '<TEXT: THREAD={} NUMBER={} TIMESTAMP={} AUTHOR={} MESSAGE="{}">'.\
             format(self.thread_name, self._num, self.date_time, self.author, self.text)
 
     def __str__(self):
@@ -249,12 +249,12 @@ class Message(object):
         return self._num == message._num
 
     def _date_parse(self, date):
-        """Allow dates to be entered as integer tuples (YYYY, MM, DD[, HH, MM]).
+        """Allow dates to be entered as integer tuples (YYYY, MM, DD[, HH, MM, SS]).
 
            Removes the need to supply datetime objects, but still allows dates
            to be entered as datetime.datetime objects. The Year, Month and
-           Day are compulsory, the Hours and Minutes optional. May cause exceptions
-           if poorly formatted tuples are used."""
+           Day are compulsory, the Hours, Minutes and Seconds optional. May cause
+           exceptions if poorly formatted tuples are used."""
         if type(date) is datetime.datetime:
             return date
         else:
@@ -267,16 +267,16 @@ class Message(object):
     def sent_before(self, date):
         """Return True if the message was sent before the date specified.
 
-           The 'date' can be a datetime.datetime object, or a three or five tuple
-           (YYYY, MM, DD[, HH, MM])."""
+           The 'date' can be a datetime.datetime object, or a three to six tuple
+           (YYYY, MM, DD[, HH, MM, SS])."""
         date = self._date_parse(date)
         return self.date_time < date
 
     def sent_after(self, date):
         """Return True if the message was sent after the date specified.
 
-           The 'date' can be a datetime.datetime object, or a three or five tuple
-           (YYYY, MM, DD[, HH, MM])."""
+           The 'date' can be a datetime.datetime object, or a three to six tuple
+           (YYYY, MM, DD[, HH, MM, SS])."""
         date = self._date_parse(date)
         return self.date_time > date
 
@@ -284,7 +284,7 @@ class Message(object):
         """Return True if the message was sent between the dates specified.
 
            The 'start' and 'end' can be datetime.datetime objects, or
-           a three or five tuple (YYYY, MM, DD[, HH, MM]). The start and end times
+           a three to six tuple (YYYY, MM, DD[, HH, MM, SS]). The start and end times
            are inclusive since this is simplest."""
         start = self._date_parse(start)
         end = self._date_parse(end)
