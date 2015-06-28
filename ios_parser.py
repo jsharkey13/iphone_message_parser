@@ -10,7 +10,7 @@ class iOSMessageParse(object):
     _MYNAME = "My Name"
     _MYNUMBER = "+NNNNNNNNNNN"
 
-    def __init__(self, fname="sms.db"):
+    def __init__(self, fname, load_pickle=False):
         self._HANDLENUMBER = {0: self._MYNUMBER}
         self._NUMBERNAME = {self._MYNUMBER: self._MYNAME}
         self._UNKNOWNS = []
@@ -20,13 +20,25 @@ class iOSMessageParse(object):
         self._sqlite_db = None
         self._cursor = None
         #
-        self._sqlite_db = sql.connect('sms.db')
-        self._cursor = self._sqlite_db.cursor()
-        # We don't want Apple's default Write-Ahead Log turned on, use SQLite default setting = DELETE.
-        # Only needs to be run once per SQLite file, but nothing lost by re-running in case.
-        # This may cause problems if file is reuploaded onto phone; but should never happen anyway.
-        # This avoids the creation of temporary files, and we don't actually want to write to file:
-        self._cursor.execute("PRAGMA journal_mode = DELETE")
+        if not load_pickle:
+            self._sqlite_db = sql.connect(fname)
+            self._cursor = self._sqlite_db.cursor()
+            # We don't want Apple's default Write-Ahead Log turned on, use SQLite default setting = DELETE.
+            # Only needs to be run once per SQLite file, but nothing lost by re-running in case.
+            # This may cause problems if file is reuploaded onto phone; but should never happen anyway.
+            # This avoids the creation of temporary files, and we don't actually want to write to file:
+            try:
+                self._cursor.execute("PRAGMA journal_mode = DELETE")
+            except sql.DatabaseError:  # If it's not an sqlite file, it may go wrong:
+                print "File is not an sms.db database. Is file " + fname + " correct? Abort."
+                sys.exit(-1)
+            #
+            self._verify_file()  # If it was an sqlite file, check it's an sms.db file too
+            #
+            self._read_handles()
+            self._read_numbers_people()
+        else:
+            self.load_from_pickle(fname)
 
     def _close(self):
         if self._sqlite_db is not None:
@@ -35,6 +47,17 @@ class iOSMessageParse(object):
 
     def __del__(self):
         self._close()
+    
+    def _verify_file(self):
+        # Verify that we're parsing an sms.db file:
+        _correct_tables = 0
+        self._cursor.execute("SELECT * FROM sqlite_master WHERE name='handle' AND type='table'")
+        _correct_tables += len(self._cursor.fetchall()) # Must have 'handle' table (add 1 if does, 0 if not)
+        self._cursor.execute("SELECT * FROM sqlite_master WHERE name='message' AND type='table'")
+        _correct_tables += len(self._cursor.fetchall()) # And 'message' table (add 1 if does, 0 if not) 
+        if _correct_tables != 2:
+            print "The database does not contain a handle table and a message table. Fatal Error: Abort."
+            sys.exit(-1)
 
     def _read_handles(self):
         if self._cursor is None:
@@ -115,9 +138,6 @@ class iOSMessageParse(object):
         if self._sqlite_db is None:
             print "No database open. Was data loaded from a pickle file?"
             return
-        #
-        self._read_handles()
-        self._read_numbers_people()
         # Get all the messages, sorted by handle_id to group conversations together:
         self._cursor.execute("SELECT ROWID, handle_id, is_from_me, date, text FROM message ORDER BY handle_id")
         messages_data = self._cursor.fetchall()

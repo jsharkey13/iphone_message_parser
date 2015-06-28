@@ -13,6 +13,6 @@ streamWriter = codecs.lookup('utf-8')[-1]
 sys.stdout = streamWriter(sys.stdout)
 
 if __name__ == "__main__":
-    SMS = ios_parser.iOSMessageParse()
+    SMS = ios_parser.iOSMessageParse('sms.db')
     SMS.parse_messages()
     print SMS.Texts
