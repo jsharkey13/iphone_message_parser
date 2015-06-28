@@ -1,0 +1,6 @@
+*.db
+*.pickle
+*.json
+*.csv
+*.pyc
+__pycache__/
