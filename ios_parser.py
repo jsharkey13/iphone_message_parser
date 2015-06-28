@@ -163,7 +163,7 @@ class iOSMessageParse(object):
                     _chat_list.append(ios_chat.Thread(_previous_thread_name, _thread_list))
                 else:  # But if the old one is a duplicate thread:
                     for thread in _chat_list:
-                        if thread.people == _previous_thread_name:
+                        if thread.people_str == _previous_thread_name:
                             thread._add_messages(_thread_list)
                             break
                 # And then start new list with current message:

@@ -12,12 +12,12 @@ class Chat(object):
 
     def __init__(self, myname, threads):
         self.threads = sorted(threads, key=len, reverse=True)
-        self._thread_dict = {thread.people: thread for thread in self.threads}
+        self._thread_dict = {thread.people_str: thread for thread in self.threads}
         self._total_messages = len(self.all_messages())
         self._myname = myname
         self._all_people = {myname}
         for thread in self.threads:
-            self._all_people.add(thread.people)
+            self._all_people.add(thread.people_str)
 
     def __getitem__(self, key):
         """Allow accessing Thread objects in the list using Chat["Thread Name"].
@@ -121,7 +121,7 @@ class Thread(object):
           objects."""
 
     def __init__(self, people, messages):
-        self.people = people
+        self.people_str = people
         self.messages = sorted(messages)
 
     def __getitem__(self, key):
@@ -202,7 +202,7 @@ class Message(object):
 
         - Contains a string of the author's name, the timestamp, text message number
           and the body of the message.
-        - When initialising, thread_name' should be the containing Thread.people,
+        - When initialising, thread_name' should be the containing Thread.people_str,
           'author' should be string containing the message sender's name, 'date_time'
           should be a datetime.datetime object, 'text' should be the content of
           the message and 'num' should be the unique text number."""
