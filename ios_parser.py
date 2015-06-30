@@ -69,9 +69,9 @@ class iOSMessageParse(object):
            iOS6 sms.db file. Will abort whole program execution if fails!"""
         _correct_tables = 0
         self._cursor.execute("SELECT * FROM sqlite_master WHERE name='handle' AND type='table'")
-        _correct_tables += len(self._cursor.fetchall()) # Must have 'handle' table (add 1 if does, 0 if not)
+        _correct_tables += len(self._cursor.fetchall())  # Must have 'handle' table (add 1 if does, 0 if not)
         self._cursor.execute("SELECT * FROM sqlite_master WHERE name='message' AND type='table'")
-        _correct_tables += len(self._cursor.fetchall()) # And 'message' table (add 1 if does, 0 if not)
+        _correct_tables += len(self._cursor.fetchall())  # And 'message' table (add 1 if does, 0 if not)
         if _correct_tables != 2:
             print "The database does not contain a handle table and a message table. Fatal Error: Abort."
             sys.exit(-1)

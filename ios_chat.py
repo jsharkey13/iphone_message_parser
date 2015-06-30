@@ -80,7 +80,6 @@ class Chat(object):
 
            The function returns a list of Message objects. The 'date' can be a
            datetime.datetime object, or a three to six tuple (YYYY, MM, DD[, HH, MM. SS])."""
-        date = self._date_parse(date)
         return sorted([message for thread in self.threads for message in thread.sent_before(date)])
 
     def sent_after(self, date):
@@ -88,17 +87,17 @@ class Chat(object):
 
            The list returned is a list of Message objects. The 'date' can be a
            datetime.datetime object, or a three to six tuple (YYYY, MM, DD[, HH, MM, SS])."""
-        date = self._date_parse(date)
         return sorted([message for thread in self.threads for message in thread.sent_after(date)])
 
-    def sent_between(self, start, end):
+    def sent_between(self, start, end=None):
         """Return a date ordered list of all messages sent between specified dates.
 
-           The list returned is a list of Message objects. The 'start' and 'end'
-           can be datetime.datetime objects, or a three to six tuple
-           (YYYY, MM, DD[, HH, MM, SS])."""
-        start = self._date_parse(start)
-        end = self._date_parse(end)
+            - The list returned is a list of Message objects. The 'start' and 'end'
+              can be datetime.datetime objects, or a three to six tuple
+              (YYYY, MM, DD[, HH, MM, SS]).
+            - Not entering an 'end' date is interpreted as all messages sent on
+              the day 'start'. Where a time is specified also, a 24 hour period
+              beginning at 'start' is used."""
         return sorted([message for thread in self.threads for message in thread.sent_between(start, end)])
 
     def search(self, string, ignore_case=False):
@@ -136,18 +135,6 @@ class Thread(object):
         """Return the total number of messages in the thread."""
         return len(self.messages)
 
-    def _date_parse(self, date):
-        """Allow dates to be entered as integer tuples (YYYY, MM, DD[, HH, MM, SS]).
-
-           Removes the need to supply datetime objects, but still allows dates
-           to be entered as datetime.datetime objects. The Year, Month and
-           Day are compulsory, the Hours, Minutes and Seconds optional. May cause
-           exceptions if poorly formatted tuples are used."""
-        if type(date) is datetime.datetime:
-            return date
-        else:
-            return datetime.datetime(*date)  # Expand the tuple and allow datetime to process it
-
     def _add_messages(self, new_messages):
         """Allow adding messages to an already created Thread object.
 
@@ -166,7 +153,6 @@ class Thread(object):
 
            The function returns a list of Message objects. The 'date' can be a
            datetime.datetime object, or a three to six tuple (YYYY, MM, DD[, HH, MM, SS])."""
-        date = self._date_parse(date)
         return [message for message in self.messages if message.sent_before(date)]
 
     def sent_after(self, date):
@@ -174,17 +160,17 @@ class Thread(object):
 
            The list returned is a list of Message objects. The 'date' can be a
            datetime.datetime object, or a three to six tuple (YYYY, MM, DD[, HH, MM, SS])."""
-        date = self._date_parse(date)
         return [message for message in self.messages if message.sent_after(date)]
 
-    def sent_between(self, start, end):
+    def sent_between(self, start, end=None):
         """Return a date ordered list of all messages sent between specified dates.
 
-           The list returned is a list of Message objects. The 'start' and 'end'
-           can be datetime.datetime objects, or a three to six tuple
-           (YYYY, MM, DD[, HH, MM, SS])."""
-        start = self._date_parse(start)
-        end = self._date_parse(end)
+            - The list returned is a list of Message objects. The 'start' and 'end'
+              can be datetime.datetime objects, or a three to six tuple
+              (YYYY, MM, DD[, HH, MM, SS]).
+            - Not entering an 'end' date is interpreted as all messages sent on
+              the day 'start'. Where a time is specified also, a 24 hour period
+              beginning at 'start' is used."""
         return [message for message in self.messages if message.sent_between(start, end)]
 
     def search(self, string, ignore_case=False):
@@ -247,7 +233,7 @@ class Message(object):
     def __eq__(self, message):
         """Messages are equal if their numbers are the same."""
         return self._num == message._num
-        
+
     def __len__(self):
         """Return the number of characters in the message body."""
         text = self.text.replace("<|NEWLINE|>", "")  # Undo adding extra characters
@@ -286,14 +272,20 @@ class Message(object):
         date = self._date_parse(date)
         return self.date_time > date
 
-    def sent_between(self, start, end):
+    def sent_between(self, start, end=None):
         """Return True if the message was sent between the dates specified.
 
-           The 'start' and 'end' can be datetime.datetime objects, or
-           a three to six tuple (YYYY, MM, DD[, HH, MM, SS]). The start and end times
-           are inclusive since this is simplest."""
+            - The 'start' and 'end' can be datetime.datetime objects, or
+              a three to six tuple (YYYY, MM, DD[, HH, MM, SS]). The start and end times
+              are inclusive since this is simplest.
+            - Not entering an 'end' date is interpreted as all messages sent on
+              the day 'start'. Where a time is specified also, a 24 hour period
+              beginning at 'start' is used."""
         start = self._date_parse(start)
-        end = self._date_parse(end)
+        if end is not None:
+            end = self._date_parse(end)
+        else:
+            end = start + datetime.timedelta(1)  # 1 day (24 hours) later than 'start'
         return start <= self.date_time <= end
 
     def contains(self, search_string, ignore_case=False):
