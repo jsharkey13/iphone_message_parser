@@ -31,7 +31,7 @@ class iOSMessageParse(object):
         self._sqlite_db = None
         self._cursor = None
         #
-        if not load_pickle:
+        if not (load_pickle or ".pickle" in fname):
             self._sqlite_db = sql.connect(fname)
             self._cursor = self._sqlite_db.cursor()
             # We don't want Apple's default Write-Ahead Log turned on, use SQLite default setting = DELETE.
