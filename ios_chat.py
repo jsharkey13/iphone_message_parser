@@ -129,7 +129,7 @@ class Thread(object):
 
     def __repr__(self):
         """Set Python's representation of the Thread object."""
-        return '<THREAD: PEOPLE={}, MESSAGE_COUNT={}>'.format(self.people, len(self.messages))
+        return '<THREAD: PEOPLE={}, MESSAGE_COUNT={}>'.format(self.people_str, len(self.messages))
 
     def __len__(self):
         """Return the total number of messages in the thread."""
