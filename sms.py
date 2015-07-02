@@ -45,3 +45,4 @@ if __name__ == "__main__":
         SMS = ios_parser.iOSMessageParse(fname)
         SMS.parse_messages()
     print SMS.Texts
+    SMS.write_to_csv()
