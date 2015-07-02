@@ -1,10 +1,6 @@
-
-
-
-
 # iPhone Message Database Parser
 
-Very much based on [Facebook Message Parser](https://github.com/jsharkey13/facebook_message_parser) (`facebook_message_parser`), which is itself based on [CopOnTheRun/FB-Message-Parser](https://github.com/CopOnTheRun/FB-Message-Parser). The code is written to allow the `facebook_message_parser.fb_analysis` module to use its output to produce similar graphs and stats.
+Very much based on [Facebook Message Parser](https://github.com/jsharkey13/facebook_message_parser) (`facebook_message_parser`), which is itself based on [CopOnTheRun/FB-Message-Parser](https://github.com/CopOnTheRun/FB-Message-Parser). This code is written to allow the `facebook_message_parser.fb_analysis` module to run on the output, to produce similar graphs and stats.
 
 On iOS6 and later, the iPhone stores texts and iMessages in a file called sms.db, an SQLite database. If the iPhone is backed up (unencrypted) to a computer, a program like [iphonebackupbrowser](https://code.google.com/p/iphonebackupbrowser/) (for Windows) can be used to locate the sms.db file in the backup. See [below](#iphonebackupbrowser).
 
