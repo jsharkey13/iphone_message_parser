@@ -10,7 +10,7 @@ On iOS6 and later, the iPhone stores texts and iMessages in a file called sms.db
 
 #### Running the Code
 
-__*Before any code can be run:*__ Lines 21 and 22 in `ios_parser.py` will need to be updated to the name and mobile number of the owner of the database being parsed. The code will attempt to open `sms.py` by default.
+__*Before any code can be run:*__ Lines 21 and 22 in `ios_parser.py` will need to be updated to the name and mobile number of the owner of the database being parsed. The code will attempt to open `sms.db` by default.
 
 Run "`python sms.py [optional_filename]`" with the `sms.db` or `[sms_db_hashed_name]` file in the same directory to export to CSV. This sample code can easily be adapted.
 
