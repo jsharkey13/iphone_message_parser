@@ -109,6 +109,17 @@ class Chat(object):
               to True."""
         return sorted([message for thread in self.threads for message in thread.search(string, ignore_case)])
 
+    def on(self, date):
+        """Return the Chat object as it would have been on 'date'.
+
+           The Chat object returned is a new object containing the subset of the
+           Threads which contain messages sent before 'date', where each of these
+           Threads is a new Thread with only these messages in.
+           - 'date' can be a datetime.datetime object, or a three or five tuple
+              (YYYY, MM, DD[, HH, MM])."""
+        threads_on = [t.on(date) for t in self.threads if len(t.on(date)) > 0]
+        return Chat(self._myname, threads_on)
+
 
 class Thread(object):
     """An object to encapsulate a iOS Message thread.
@@ -181,6 +192,15 @@ class Thread(object):
             - The function can be made case-insensitive by setting 'ignore_case'
               to True."""
         return sorted([message for message in self.messages if message.contains(string, ignore_case)])
+
+    def on(self, date):
+        """Return the Thread object as it would have been on 'date'.
+
+           The Thread object returned is a new object containing the subset of the
+           messages sent before 'date'.
+           - 'date' can be a datetime.datetime object, or a three or five tuple
+              (YYYY, MM, DD[, HH, MM])."""
+        return Thread(self.people, self.sent_before(date))
 
 
 class Message(object):
