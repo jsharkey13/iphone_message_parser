@@ -200,7 +200,7 @@ class Thread(object):
            messages sent before 'date'.
            - 'date' can be a datetime.datetime object, or a three or five tuple
               (YYYY, MM, DD[, HH, MM])."""
-        return Thread(self.people, self.sent_before(date))
+        return Thread(self.people_str, self.sent_before(date))
 
 
 class Message(object):
